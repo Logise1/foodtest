@@ -5,7 +5,7 @@ const foods = [
         category: "Cereal/Básico",
         tags: ["neutral", "basic", "side"],
         dislikeOptions: ["Textura", "Sabor Soso", "Muy Seco", "Muy Pastoso", "Olor"],
-        emoji: "�",
+        emoji: "🍚",
         color: "#EEEEEE"
     },
     {
@@ -50,7 +50,7 @@ const foods = [
         category: "Proteína/Básico",
         tags: ["protein", "basic", "versatile"],
         dislikeOptions: ["Yema", "Clara", "Olor (Sulfuro)", "Textura", "Sabor"],
-        emoji: "�",
+        emoji: "🥚",
         color: "#FFF59D"
     },
     {
@@ -68,7 +68,7 @@ const foods = [
         category: "Lácteo",
         tags: ["dairy", "savory", "strong"],
         dislikeOptions: ["Olor Fuerte", "Sabor Intenso", "Corteza", "Textura Dura", "Salado"],
-        emoji: "�",
+        emoji: "🧀",
         color: "#FFD54F"
     },
     {
@@ -77,7 +77,7 @@ const foods = [
         category: "Vegetal/Fruta",
         tags: ["vegetable", "fresh", "acidic"],
         dislikeOptions: ["Semillas", "Piel", "Acidez", "Textura Harinosa", "Jugo"],
-        emoji: "�",
+        emoji: "🍅",
         color: "#EF5350"
     },
     {
@@ -104,7 +104,7 @@ const foods = [
         category: "Vegetal/Hoja",
         tags: ["vegetable", "green", "healthy"],
         dislikeOptions: ["Textura Viscosa (Cocida)", "Sensación en Dientes", "Sabor Amargo", "Tierra", "Aspecto"],
-        emoji: "�",
+        emoji: "🥬",
         color: "#4CAF50"
     },
     {
@@ -131,7 +131,7 @@ const foods = [
         category: "Legumbre",
         tags: ["legume", "protein", "fiber"],
         dislikeOptions: ["Piel/Cáscara", "Textura Pastosa", "Gases/Digestión", "Sabor", "Caldo"],
-        emoji: "�",
+        emoji: "🫘",
         color: "#8D6E63"
     },
     {
@@ -140,7 +140,7 @@ const foods = [
         category: "Cereal",
         tags: ["starch", "gluten", "basic"],
         dislikeOptions: ["Textura Blanda", "Sabor Harina", "Pegajosa", "Integral (Sabor)", "Forma"],
-        emoji: "�",
+        emoji: "🍝",
         color: "#FFE0B2"
     },
     {
@@ -149,7 +149,7 @@ const foods = [
         category: "Cereal",
         tags: ["starch", "gluten", "basic"],
         dislikeOptions: ["Corteza", "Miga", "Seco/Duro", "Semillas", "Sabor Levadura"],
-        emoji: "�",
+        emoji: "🍞",
         color: "#FFE082"
     },
     {
@@ -158,7 +158,7 @@ const foods = [
         category: "Dulce/Conserva",
         tags: ["sweet", "spread", "fruit"],
         dislikeOptions: ["Muy Dulce", "Trozos de Fruta", "Textura Pegajosa", "Semillas", "Sabor Artificial"],
-        emoji: "�",
+        emoji: "🍓",
         color: "#EF5350"
     },
     {
@@ -239,7 +239,7 @@ const foods = [
         category: "Pescado/Conserva",
         tags: ["fish", "pantry", "protein"],
         dislikeOptions: ["Olor Fuerte", "Textura Seca", "Aceite", "Sabor Metálico", "Apariencia"],
-        emoji: "�",
+        emoji: "🐟",
         color: "#90A4AE"
     },
     {
@@ -266,7 +266,7 @@ const foods = [
         category: "Condimento",
         tags: ["spicy", "hot", "strong"],
         dislikeOptions: ["Ardor", "Dolor Físico", "Sabor", "Semillas", "Piel"],
-        emoji: "�️",
+        emoji: "🌶️",
         color: "#F44336"
     },
     {
@@ -293,7 +293,7 @@ const foods = [
         category: "Dulce/Natural",
         tags: ["sweet", "sticky", "natural"],
         dislikeOptions: ["Muy Dulce", "Textura Pegajosa", "Sabor Floral", "Cristalización", "Origen"],
-        emoji: "�",
+        emoji: "🍯",
         color: "#FFC107"
     },
     {
@@ -302,7 +302,7 @@ const foods = [
         category: "Lácteo",
         tags: ["dairy", "probiotic", "acidic"],
         dislikeOptions: ["Acidez", "Textura Espesa", "Suero", "Sabor Lácteo", "Grumos"],
-        emoji: "�",
+        emoji: "🥣",
         color: "#F5F5F5"
     },
     {
@@ -338,7 +338,7 @@ const foods = [
         category: "Vegetal",
         tags: ["vegetable", "watery", "fresh"],
         dislikeOptions: ["Sabor Amargo", "Repitencia", "Semillas", "Piel", "Aguado"],
-        emoji: "�",
+        emoji: "🥒",
         color: "#C8E6C9"
     },
     {
