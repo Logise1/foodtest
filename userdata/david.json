@@ -1,0 +1,300 @@
+[
+    {
+        "foodId": 1,
+        "foodName": "Arroz Blanco",
+        "category": "Cereal/Básico",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 2,
+        "foodName": "Pollo (Pechuga/Muslo)",
+        "category": "Proteína/Ave",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 3,
+        "foodName": "Carne de Res",
+        "category": "Proteína/Roja",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 4,
+        "foodName": "Carne de Cerdo",
+        "category": "Proteína/Carne",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 5,
+        "foodName": "Pescado Blanco",
+        "category": "Proteína/Mar",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 6,
+        "foodName": "Huevo",
+        "category": "Proteína/Básico",
+        "rating": 4,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 7,
+        "foodName": "Leche de Vaca",
+        "category": "Lácteo",
+        "rating": 1,
+        "dislikeReasons": [
+            "Lactosa (Digestión)"
+        ]
+    },
+    {
+        "foodId": 8,
+        "foodName": "Queso Curado",
+        "category": "Lácteo",
+        "rating": 1,
+        "dislikeReasons": [
+            "Otro: Lactosa"
+        ]
+    },
+    {
+        "foodId": 9,
+        "foodName": "Tomate",
+        "category": "Vegetal/Fruta",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 10,
+        "foodName": "Cebolla",
+        "category": "Vegetal/Condimento",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 11,
+        "foodName": "Brócoli",
+        "category": "Vegetal",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 12,
+        "foodName": "Espinacas",
+        "category": "Vegetal/Hoja",
+        "rating": 4,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 13,
+        "foodName": "Zanahoria",
+        "category": "Vegetal",
+        "rating": 4,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 14,
+        "foodName": "Papas (Patatas)",
+        "category": "Tubérculo",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 15,
+        "foodName": "Frijoles (Judías)",
+        "category": "Legumbre",
+        "rating": 1,
+        "dislikeReasons": [
+            "Textura Pastosa",
+            "Sabor"
+        ]
+    },
+    {
+        "foodId": 16,
+        "foodName": "Pasta de Trigo",
+        "category": "Cereal",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 17,
+        "foodName": "Pan",
+        "category": "Cereal",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 18,
+        "foodName": "Mermelada",
+        "category": "Dulce/Conserva",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 19,
+        "foodName": "Chocolate",
+        "category": "Dulce",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 20,
+        "foodName": "Café",
+        "category": "Bebida/Estimulante",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 21,
+        "foodName": "Manzana",
+        "category": "Fruta",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 22,
+        "foodName": "Plátano (Banana)",
+        "category": "Fruta",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 23,
+        "foodName": "Naranja/Cítricos",
+        "category": "Fruta",
+        "rating": 1,
+        "dislikeReasons": [
+            "Hilos Blancos",
+            "Acidez"
+        ]
+    },
+    {
+        "foodId": 24,
+        "foodName": "Aguacate",
+        "category": "Fruta/Grasa",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 25,
+        "foodName": "Champiñones (Setas)",
+        "category": "Hongo",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 26,
+        "foodName": "Camarones/Gambas",
+        "category": "Marisco",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 27,
+        "foodName": "Atún (Lata)",
+        "category": "Pescado/Conserva",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 28,
+        "foodName": "Mayonesa",
+        "category": "Salsa/Grasa",
+        "rating": 2,
+        "dislikeReasons": [
+            "Textura Grasosa"
+        ]
+    },
+    {
+        "foodId": 29,
+        "foodName": "Mostaza",
+        "category": "Salsa/Condimento",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 30,
+        "foodName": "Picante (Chile/Ají)",
+        "category": "Condimento",
+        "rating": 1,
+        "dislikeReasons": [
+            "Ardor"
+        ]
+    },
+    {
+        "foodId": 31,
+        "foodName": "Cilantro",
+        "category": "Hierba",
+        "rating": 1,
+        "dislikeReasons": [
+            "Sabor a Jabón"
+        ]
+    },
+    {
+        "foodId": 32,
+        "foodName": "Ajo",
+        "category": "Condimento",
+        "rating": 4,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 33,
+        "foodName": "Miel",
+        "category": "Dulce/Natural",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 34,
+        "foodName": "Yogur",
+        "category": "Lácteo",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 35,
+        "foodName": "Frutos Secos (Nueces)",
+        "category": "Fruto Seco",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 36,
+        "foodName": "Aceitunas",
+        "category": "Encurtido/Grasa",
+        "rating": 3,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 37,
+        "foodName": "Coco",
+        "category": "Fruta/Grasa",
+        "rating": 4,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 38,
+        "foodName": "Pepino",
+        "category": "Vegetal",
+        "rating": 4,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 39,
+        "foodName": "Sandía/Melón",
+        "category": "Fruta",
+        "rating": 5,
+        "dislikeReasons": []
+    },
+    {
+        "foodId": 40,
+        "foodName": "Tofu",
+        "category": "Proteína/Vegetal",
+        "rating": 1,
+        "dislikeReasons": [
+            "Sabor Soso"
+        ]
+    }
+]

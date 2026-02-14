@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparativa de Gustos - Datos de Usuarios</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #111827;
+            text-align: center;
+        }
+
+        .table-container {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 0.75rem 1rem;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            color: #6b7280;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+
+        td {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .rating-cell {
+            text-align: center;
+        }
+
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .rating-1 {
+            background-color: #ef4444;
+        }
+
+        .rating-2 {
+            background-color: #f97316;
+        }
+
+        .rating-3 {
+            background-color: #eab308;
+        }
+
+        .rating-4 {
+            background-color: #84cc16;
+        }
+
+        .rating-5 {
+            background-color: #22c55e;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .dislike-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        .dislike-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .user-label {
+            font-weight: bold;
+            color: #4b5563;
+            margin-right: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Tabla Comparativa de Comidas</h1>
+
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr id="tableHeader">
+                        <th>Alimento</th>
+                        <th>Categoría</th>
+                        <!-- User headers will be injected here -->
+                        <th>Motivos de Disgusto</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="100%" class="loading">Cargando datos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const users = ['ariel', 'david', 'mia', 'rosa'];
+
+        async function loadData() {
+            const tableBody = document.getElementById('tableBody');
+            const tableHeader = document.getElementById('tableHeader');
+
+            // Insert user headers dynamically before the last column
+            const dislikeHeader = tableHeader.lastElementChild;
+            users.forEach(user => {
+                const th = document.createElement('th');
+                th.textContent = user.charAt(0).toUpperCase() + user.slice(1);
+                th.style.textAlign = 'center';
+                tableHeader.insertBefore(th, dislikeHeader);
+            });
+
+            const foodMap = new Map();
+
+            try {
+                // Fetch all data
+                for (const user of users) {
+                    try {
+                        const response = await fetch(`userdata/${user}.json`);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        const userFoodData = await response.json();
+
+                        userFoodData.forEach(item => {
+                            if (!foodMap.has(item.foodId)) {
+                                foodMap.set(item.foodId, {
+                                    foodName: item.foodName,
+                                    category: item.category,
+                                    ratings: {},
+                                    dislikes: []
+                                });
+                            }
+                            const entry = foodMap.get(item.foodId);
+                            entry.ratings[user] = item.rating;
+
+                            if (item.dislikeReasons && item.dislikeReasons.length > 0) {
+                                entry.dislikes.push({
+                                    user: user,
+                                    reasons: item.dislikeReasons
+                                });
+                            }
+                        });
+
+                    } catch (e) {
+                        console.error(`Error loading data for ${user}:`, e);
+                    }
+                }
+
+                renderTable(foodMap);
+
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="100%" class="loading">Error al cargar los datos.<br>${error.message}</td></tr>`;
+            }
+        }
+
+        function renderTable(foodMap) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            if (foodMap.size === 0) {
+                tableBody.innerHTML = `<tr><td colspan="100%" class="loading">No hay datos para mostrar</td></tr>`;
+                return;
+            }
+
+            // Convert to array and sort by foodName
+            const sortedFoods = Array.from(foodMap.values()).sort((a, b) => a.foodName.localeCompare(b.foodName));
+
+            sortedFoods.forEach(item => {
+                const tr = document.createElement('tr');
+
+                // Food Name
+                const foodTd = document.createElement('td');
+                foodTd.textContent = item.foodName;
+                foodTd.style.fontWeight = '500';
+                tr.appendChild(foodTd);
+
+                // Category
+                const catTd = document.createElement('td');
+                catTd.textContent = item.category;
+                tr.appendChild(catTd);
+
+                // Ratings for each user
+                users.forEach(user => {
+                    const ratingTd = document.createElement('td');
+                    ratingTd.className = 'rating-cell';
+
+                    const rating = item.ratings[user];
+                    if (rating !== undefined) {
+                        const badge = document.createElement('span');
+                        badge.className = `rating-badge rating-${rating}`;
+                        badge.textContent = rating;
+                        ratingTd.appendChild(badge);
+                    } else {
+                        ratingTd.textContent = '-';
+                        ratingTd.style.color = '#9ca3af';
+                    }
+                    tr.appendChild(ratingTd);
+                });
+
+                // Dislike Reasons (grouped by person)
+                const dislikeTd = document.createElement('td');
+                if (item.dislikes.length > 0) {
+                    const ul = document.createElement('ul');
+                    ul.className = 'dislike-list';
+
+                    // Sort dislikes by user name just to be tidy
+                    item.dislikes.sort((a, b) => a.user.localeCompare(b.user));
+
+                    item.dislikes.forEach(d => {
+                        const li = document.createElement('li');
+                        li.className = 'dislike-item';
+
+                        const userSpan = document.createElement('span');
+                        userSpan.className = 'user-label';
+                        userSpan.textContent = d.user.charAt(0).toUpperCase() + d.user.slice(1) + ':';
+
+                        li.appendChild(userSpan);
+                        li.appendChild(document.createTextNode(' ' + d.reasons.join(', ')));
+                        ul.appendChild(li);
+                    });
+                    dislikeTd.appendChild(ul);
+                }
+                tr.appendChild(dislikeTd);
+
+                tableBody.appendChild(tr);
+            });
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+
+</html>
