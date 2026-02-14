@@ -253,7 +253,14 @@
 <body>
 
     <div class="container">
-        <h1>📅 Menú Mensual - Febrero 2026</h1>
+        <!-- Navigation Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <button onclick="changeMonth(-1)"
+                style="background:none; border:none; font-size: 2rem; cursor:pointer; color:var(--primary)">&#10094;</button>
+            <h1 id="month-title" style="margin:0;">Febrero 2026</h1>
+            <button onclick="changeMonth(1)"
+                style="background:none; border:none; font-size: 2rem; cursor:pointer; color:var(--primary)">&#10095;</button>
+        </div>
 
         <div class="calendar-grid" id="calendar">
             <div class="day-header">Lunes</div>
@@ -263,27 +270,49 @@
             <div class="day-header">Viernes</div>
             <div class="day-header">Sábado</div>
             <div class="day-header">Domingo</div>
-
-            <!-- JavaScript will inject days here -->
         </div>
 
         <div class="shopping-section">
-            <h2>🛒 Lista de la Compra Semanal</h2>
-            <div class="shopping-grid" id="shopping-lists">
-                <!-- JavaScript will inject lists here -->
-            </div>
+            <h2>🛒 Lista de la Compra</h2>
+            <div class="shopping-grid" id="shopping-lists"></div>
         </div>
     </div>
 
     <script>
+        // State
+        let currentYear = 2026;
+        let currentMonth = 1; // 0=Jan, 1=Feb
+        let globalFoodStats = [];
         const users = ['ariel', 'mia', 'rosa', 'david'];
-        let foodStats = [];
-        const year = 2026;
-        const month = 1; // 0-indexed (Feb is 1)
+
+        // Navigation
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateView();
+        }
+
+        function updateView() {
+            // Update Title
+            const date = new Date(currentYear, currentMonth, 1);
+            const monthName = date.toLocaleString('es-ES', { month: 'long' });
+            const capMonth = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+            document.getElementById('month-title').textContent = `${capMonth} ${currentYear}`;
+
+            // Generate
+            const schedule = generateSchedule(globalFoodStats, currentYear, currentMonth);
+            renderCalendar(schedule);
+            generateShoppingList(schedule);
+        }
 
         async function init() {
             try {
-                // 1. Fetch User Data
                 let allData = [];
                 for (const user of users) {
                     const response = await fetch(`userdata/${user}.json`);
@@ -292,25 +321,14 @@
                         allData = [...allData, ...data];
                     }
                 }
-
-                // 2. Process Data
-                foodStats = processFoodData(allData);
-
-                // 3. Generate Schedule
-                const schedule = generateSchedule(foodStats);
-
-                // 4. Render Calendar
-                renderCalendar(schedule);
-
-                // 5. Generate shopping list
-                generateShoppingList(schedule);
-
+                globalFoodStats = processFoodData(allData);
+                updateView();
             } catch (e) {
-                document.body.innerHTML = `<div class="loading">Error cargando datos: ${e.message}<br>Asegúrate de ejecutar en servidor local.</div>`;
-                console.error(e);
+                document.body.innerHTML = `<div class="loading">Error: ${e.message}<br>Ejecuta en servidor local.</div>`;
             }
         }
 
+        // Data Processing
         function processFoodData(data) {
             const temp = {};
             data.forEach(item => {
@@ -323,11 +341,8 @@
                     };
                 }
                 temp[item.foodId].ratings.push(item.rating);
-                if (item.rating < temp[item.foodId].min_rating) {
-                    temp[item.foodId].min_rating = item.rating;
-                }
+                if (item.rating < temp[item.foodId].min_rating) temp[item.foodId].min_rating = item.rating;
             });
-
             return Object.values(temp).map(item => ({
                 name: item.name,
                 category: item.category,
@@ -336,208 +351,262 @@
             }));
         }
 
-        // Seeded RNG to ensure the menu remains constant
-        let currentSeed = 202602;
-        function seededRandom() {
-            currentSeed = (currentSeed * 9301 + 49297) % 233280;
-            return currentSeed / 233280;
+        // --------------------------------------------------------------------------------
+        // MEAL LOGIC CONFIGURATION
+        // --------------------------------------------------------------------------------
+
+        // Helper to check if a category/name fits "Lunch" (Heavier/Carby) vs "Dinner" (Lighter/Protein)
+        function isLunch(item) {
+            const txt = (item.name + " " + item.category).toLowerCase();
+            // Lunch: Rice, Pasta, Legumes, Stews, Potatoes, Red Meat dishes
+            if (/arroz|pasta|cereal|legumbre|lenteja|frijol|guiso|estofado|lasaña|spaghetti|macarron|paella|cocido/.test(txt)) return true;
+            if (/texmex|burrito|taco/.test(txt)) return true; // Heavy
+            return false;
         }
 
-        // --------------------------------------------------------------------------------
-        // VARIETY INJECTION
-        // --------------------------------------------------------------------------------
-
-        // --------------------------------------------------------------------------------
-        // VARIETY INJECTION
-        // --------------------------------------------------------------------------------
+        function isDinner(item) {
+            const txt = (item.name + " " + item.category).toLowerCase();
+            // Dinner: Fish, Eggs, Chicken (grilled/light), Soup, Salad, Vegetables
+            if (/pescado|atún|marisco|huevo|tortilla|sopa|crema|ensalada|vegetal|verdura|brócoli|espinaca/.test(txt)) return true;
+            if (/pollo|pavo/.test(txt) && !/asado|frito/.test(txt)) return true; // Light chicken OK
+            return false;
+        }
 
         const EXTRA_RECIPES = [
-            { name: "Burritos de Carne", base: "Carne", category: "TexMex", type: "special" },
-            { name: "Spaghetti Boloñesa", base: "Pasta", category: "Italiana", type: "special" },
-            { name: "Albóndigas en Salsa", base: "Carne", category: "Casera", type: "special" },
-            { name: "Tacos de Carne", base: "Carne", category: "TexMex", type: "special" },
-            { name: "Arroz Tres Delicias", base: "Arroz", category: "Asiática", type: "special" },
-            { name: "Curry de Pollo", base: "Pollo", category: "Asiática", type: "special" },
-            { name: "Pescado al Horno con Patatas", base: "Pescado", category: "Horno", type: "special" },
-            { name: "Lasaña de Carne", base: "Pasta", category: "Italiana", type: "special" },
-            { name: "Estofado de Ternera", base: "Carne", category: "Guiso", type: "special" },
-            { name: "Pollo Asado con Patatas", base: "Pollo", category: "Horno", type: "special" }
+            { name: "Burritos de Carne", base: "Carne", category: "TexMex", type: "special", suitable: "lunch" },
+            { name: "Spaghetti Boloñesa", base: "Pasta", category: "Italiana", type: "special", suitable: "lunch" },
+            { name: "Albóndigas en Salsa", base: "Carne", category: "Casera", type: "special", suitable: "lunch" },
+            { name: "Tacos de Carne", base: "Carne", category: "TexMex", type: "special", suitable: "lunch" },
+            { name: "Arroz Tres Delicias", base: "Arroz", category: "Asiática", type: "special", suitable: "lunch" },
+            { name: "Curry de Pollo", base: "Pollo", category: "Asiática", type: "special", suitable: "lunch" },
+            { name: "Estofado de Ternera", base: "Carne", category: "Guiso", type: "special", suitable: "lunch" },
+            { name: "Lasaña de Carne", base: "Pasta", category: "Italiana", type: "special", suitable: "lunch" },
+
+            { name: "Pescado al Horno con Patatas", base: "Pescado", category: "Horno", type: "special", suitable: "dinner" },
+            { name: "Pollo Asado con Patatas", base: "Pollo", category: "Horno", type: "special", suitable: "lunch" }, // Roast chicken is lunch usually in Spain
+            { name: "Sopa de Pollo", base: "Sopa", category: "Sopa", type: "special", suitable: "dinner" },
+            { name: "Crema de Calabacín", base: "Vegetal", category: "Cuchara", type: "special", suitable: "dinner" }
         ];
 
-        function generateSchedule(stats) {
-            // Reset seed every time we generate to ensure consistency
-            currentSeed = 202602;
+        // Seeded RNG
+        let currentSeed = 1;
+        function seed(s) { currentSeed = s; }
+        function random() {
+            var x = Math.sin(currentSeed++) * 10000;
+            return x - Math.floor(x);
+        }
 
-            // Categorize
+        function generateSchedule(stats, year, month) {
+            // Seed based on YearMonth to keep it consistent per page but infinite
+            seed(year * 100 + month);
+
+            // Prepare Pools
+            // LUNCH Pool (Heavy)
+            const lunchPool = stats.filter(f => isLunch(f) && f.min_rating >= 2);
+            // DINNER Pool (Light)
+            const dinnerPool = stats.filter(f => isDinner(f) && f.min_rating >= 2);
+
+            // Ingredients for constructing meals if not special
             const proteins = stats.filter(f => /proteína|carne|pollo|pescado|huevo|tofu|atún|cerdo|camarones|pavo/i.test(f.category + f.name));
             const veggies = stats.filter(f => /vegetal|verdura|brócoli|espinaca|zanahoria|tomate|pepino|champiñon|ensalada/i.test(f.category + f.name));
             const carbs = stats.filter(f => /cereal|arroz|pasta|pan|papa|patata|tubérculo/i.test(f.category + f.name));
 
-            // Allow specials logic if wanted, for now stick to basics + special occasional
-            let specials = stats.filter(f => /lenteja|sopa|crema|estofado|guiso/i.test(f.name));
-
-            // Inject Extras if Base Ingredient is Liked (Rating >= 3)
-            EXTRA_RECIPES.forEach(recipe => {
-                // Find if base matches any high rated item in stats
-                const baseMatch = stats.find(s =>
-                    s.name.toLowerCase().includes(recipe.base.toLowerCase()) ||
-                    s.category.toLowerCase().includes(recipe.base.toLowerCase())
-                );
-
-                if (baseMatch && baseMatch.avg_rating >= 3) {
-                    specials.push({
-                        name: recipe.name,
-                        category: recipe.category,
-                        avg_rating: baseMatch.avg_rating, // Inherit rating
-                        min_rating: baseMatch.min_rating
-                    });
-                } else if (!baseMatch && recipe.base === "Vegetal") {
-                    // Generic vegetable check
-                    specials.push({
-                        name: recipe.name,
-                        category: recipe.category,
-                        avg_rating: 4,
-                        min_rating: 3
-                    });
+            // Specials
+            let specials = [];
+            // Add Extras if preferred
+            EXTRA_RECIPES.forEach(r => {
+                // Check if family generally likes the base
+                const match = stats.find(s => s.name.includes(r.base) && s.avg_rating >= 3);
+                if (match || r.base === "Vegetal" || r.base === "Sopa") {
+                    specials.push(r);
                 }
             });
 
-            // Fallback
-            if (specials.length === 0) {
-                specials.push(
-                    { name: 'Lentejas Estofadas', category: 'Legumbre', avg_rating: 4.5, min_rating: 3 },
-                    { name: 'Sopa de Pollo', category: 'Sopa', avg_rating: 4, min_rating: 3 }
-                );
-            }
+            // Sorting for consistency
+            [lunchPool, dinnerPool, proteins, veggies, carbs, specials].forEach(arr => arr.sort((a, b) => a.name.localeCompare(b.name)));
 
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const schedule = [];
 
-            // Random Histories
-            let h_main = [], h_carb = [], h_veg = [], h_spec = [];
-
-            // Sort arrays to ensure consistent starting state before random selection
-            proteins.sort((a, b) => a.name.localeCompare(b.name));
-            veggies.sort((a, b) => a.name.localeCompare(b.name));
-            carbs.sort((a, b) => a.name.localeCompare(b.name));
-            specials.sort((a, b) => a.name.localeCompare(b.name));
+            // Tracking to avoid repetition
+            let lastDayProteins = []; // [LunchProtein, DinnerProtein]
+            let lastDayCarbs = [];    // [LunchCarb, DinnerCarb]
 
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(year, month, day);
-                const dayOfWeek = date.getDay(); // 0 is Sun
-
+                const dayOfWeek = date.getDay(); // 0:Sun, 1:Mon
                 const dayPlan = { day: day, meals: [] };
 
-                // Fri (5) or Sat (6) -> Glovo
+                // Trackers for TODAY to pass to tomorrow
+                let todayProteins = [];
+                let todayCarbs = [];
+
+                // Rules
+                // Fri(5)/Sat(6) -> Glovo
                 if (dayOfWeek === 5 || dayOfWeek === 6) {
                     dayPlan.isGlovo = true;
+                    // Reset trackers effectively (Glovo is wildcard) or keep yesterday's to prevent Mon repeat? 
+                    // Let's just clear for Glovo days so Sunday isn't blocked by Thursday
+                    todayProteins = [];
+                    todayCarbs = [];
                 }
-                else if (dayOfWeek === 0) { // Sunday
-                    dayPlan.meals.push(createMeal(proteins, carbs, veggies, specials, h_main, h_carb, h_veg, h_spec));
-                    dayPlan.meals.push(createMeal(proteins, carbs, veggies, specials, h_main, h_carb, h_veg, h_spec));
+                else if (dayOfWeek === 0) { // Sunday: Lunch & Dinner
+                    // Lunch
+                    const lunch = selectMeal('lunch', specials, lunchPool, proteins, carbs, veggies, lastDayProteins, lastDayCarbs, todayProteins, todayCarbs);
+                    dayPlan.meals.push(lunch);
+                    updateTrackers(lunch, todayProteins, todayCarbs);
+
+                    // Dinner
+                    const dinner = selectMeal('dinner', specials, dinnerPool, proteins, carbs, veggies, lastDayProteins, lastDayCarbs, todayProteins, todayCarbs);
+                    dayPlan.meals.push(dinner);
+                    updateTrackers(dinner, todayProteins, todayCarbs);
                 }
-                else { // Mon-Thu
-                    dayPlan.meals.push(createMeal(proteins, carbs, veggies, specials, h_main, h_carb, h_veg, h_spec));
+                else { // Mon-Thu: Dinner Only
+                    const dinner = selectMeal('dinner', specials, dinnerPool, proteins, carbs, veggies, lastDayProteins, lastDayCarbs, todayProteins, todayCarbs);
+                    dayPlan.meals.push(dinner);
+                    updateTrackers(dinner, todayProteins, todayCarbs);
                 }
 
                 schedule.push(dayPlan);
+
+                // Pass today's to next iteration
+                lastDayProteins = todayProteins;
+                lastDayCarbs = todayCarbs;
             }
             return schedule;
         }
 
-        function createMeal(prots, carbs, vegs, specs, h_m, h_c, h_v, h_s) {
-            // INCREASED special chance to 40% for variety
-            if (seededRandom() < 0.40 && specs.length > 0) {
-                const main = selectBest(specs, h_s);
-                return { type: 'special', main: main, note: getNote(main) };
+        function updateTrackers(meal, protList, carbList) {
+            if (!meal) return;
+            // Extract key ingredient names for tracking
+            const p = getIngredientCategory(meal.main.name);
+            protList.push(p);
+
+            if (meal.carb) carbList.push(getIngredientCategory(meal.carb.name));
+            // Also check main category (e.g. Pasta dish)
+            if (/pasta|arroz/.test((meal.main.name + meal.main.category).toLowerCase())) {
+                carbList.push(getIngredientCategory(meal.main.name));
+            }
+        }
+
+        function getIngredientCategory(name) {
+            name = name.toLowerCase();
+            if (/pollo|pavo/.test(name)) return "pollo";
+            if (/res|ternera|carne|buey/.test(name)) return "carne_roja";
+            if (/cerdo/.test(name)) return "cerdo";
+            if (/pescado|atún|merluza|salmón/.test(name)) return "pescado";
+            if (/huevo|tortilla/.test(name)) return "huevo";
+            if (/arroz/.test(name)) return "arroz";
+            if (/pasta|spaghetti|macarron|lasaña/.test(name)) return "pasta";
+            if (/lenteja|frijol/.test(name)) return "legumbre";
+            return name;
+        }
+
+        function selectMeal(type, specials, typePool, prots, carbs, vegs, avoidP, avoidC, currentP, currentC) {
+            // Filter Specials by Type (Lunch/Dinner)
+            let suitableSpecials = specials.filter(s => s.suitable === type || (!s.suitable && type === 'lunch'));
+
+            // Filter Regular items if constructing
+            let pPool = (type === 'lunch') ? prots : prots.filter(p => !/carne|res|cerdo/.test(p.name.toLowerCase())); // Prefer light protein for dinner
+            if (pPool.length === 0) pPool = prots; // Fallback
+
+            // 40% chance special
+            if (random() < 0.4 && suitableSpecials.length > 0) {
+                // Try to find one not maintained in avoid lists
+                let cand = pickValid(suitableSpecials, avoidP, avoidC, currentP, currentC);
+                if (cand) return { type: 'special', main: cand, note: getNote(cand) };
+            }
+
+            // Construct Standard Meal
+            // 1. Protein
+            let main = pickValid(pPool, avoidP, avoidC, currentP, currentC);
+            if (!main) main = pPool[Math.floor(random() * pPool.length)];
+
+            // 2. Veggie
+            let veg = vegs[Math.floor(random() * vegs.length)];
+
+            // 3. Carb (Only if Lunch, or very light for Dinner?)
+            // User said "Cena y comida son diferentes". Usually Dinner has no heavy carb or very little.
+            // Let's say Lunch always has Carb. Dinner has Carb only if soup/light potato.
+            // Actually, keep it simple: Lunch = Protein+Carb+Veg. Dinner = Protein+Veg (Low Carb).
+
+            let carb = null;
+            if (type === 'lunch') {
+                const cPool = carbs;
+                carb = pickValid(cPool, avoidP, avoidC, currentP, currentC);
+                if (!carb && cPool.length > 0) carb = cPool[Math.floor(random() * cPool.length)];
             } else {
-                const p = selectBest(prots, h_m);
-                const c = selectBest(carbs, h_c);
-                const v = selectBest(vegs, h_v);
-                return { type: 'standard', main: p, carb: c, veg: v, note: getNote(p) };
+                // Dinner: Maybe just small potato or none?
+                // "No repetir carb en el dia siguiente" implies carbs exist.
+                // Let's add a small side carb occasionally or ensure Veggie is substantial.
+                // Or use a very light carb (pan check?)
+                // For simplicity, let's skip carb for Dinner to respect "different".
+                // BUT user wants to check repetition logic.
+                // We will assign a Veggie. And maybe a light carb if needed.
+                // We'll skip specific carb slot for dinner to distinguish it clearly as requested.
+            }
+
+            // Formatting
+            if (carb) {
+                return { type: 'standard', main: main, carb: carb, veg: veg, note: getNote(main) };
+            } else {
+                return { type: 'standard', main: main, veg: veg, note: getNote(main) };
             }
         }
 
-        function selectBest(list, history) {
-            // Filter
-            let candidates = list.filter(i => i.min_rating >= 2);
-            if (candidates.length === 0) candidates = list;
+        // Pick item that doesn't conflict with avoid lists
+        function pickValid(list, avoidP, avoidC, currP, currC) {
+            // Shuffle
+            let shuffled = list.slice().sort(() => random() - 0.5);
 
-            // Sort by rating desc
-            let sorted = [...candidates].sort((a, b) => b.avg_rating - a.avg_rating);
+            for (let item of shuffled) {
+                let cat = getIngredientCategory(item.name);
 
-            // VARIETY TWEAK: Consider top 60% of candidates as "good" instead of just top ones
-            // This allows 3-4 star items to rotate in more often vs always 5-star
-            // But we still weight by recency
+                // Check Previous Day Conflict
+                if (avoidP.includes(cat)) continue;
+                if (avoidC.includes(cat)) continue;
 
-            const scored = sorted.map(c => {
-                const idx = history.indexOf(c.name);
-                const daysAgo = idx === -1 ? 999 : idx;
+                // Check Today Conflict (e.g. Lunch had chicken, Dinner shouldn't)
+                if (currP.includes(cat)) continue;
+                if (currC.includes(cat)) continue;
 
-                // Score formula:
-                // Recency is paramount to avoid back-to-back.
-                // Rating is secondary but important.
-                // Random noise added to reshuffle equal contenders
-                return { item: c, score: (daysAgo * 5) + (c.avg_rating * 2) + seededRandom() };
-            });
-
-            scored.sort((a, b) => b.score - a.score);
-
-            // Pick from top 5 to ensure good rotation
-            const poolSize = Math.min(5, scored.length);
-            const top = scored.slice(0, poolSize);
-            const selection = top[Math.floor(seededRandom() * top.length)];
-
-            if (selection) {
-                const selectedItem = selection.item;
-                history.unshift(selectedItem.name);
-                if (history.length > 20) history.pop(); // Keep longer history to force more variety
-                return selectedItem;
+                return item;
             }
-            return list[0];
+            // If strict fail, pick first (loose fallback)
+            return shuffled[0];
         }
 
+        // Utils
         function getNote(item) {
             if (!item) return null;
             const txt = (item.name + " " + item.category).toLowerCase();
-
-            // Special Categories
             if (/texmex|casera|italiana|española|asiática|americana/.test(txt)) return { text: item.category, class: 'tag-purple' };
-
             if (/pescado|atún|mar/.test(txt)) return { text: 'Omega-3', class: 'tag-blue' };
             if (/huevo|frijol|legumbre|lenteja/.test(txt)) return { text: 'Ligero', class: 'tag-green' };
             if (/pollo|pavo/.test(txt)) return { text: 'Magra', class: 'tag-orange' };
-            if (/res|cerdo|estofado/.test(txt)) return { text: 'Hierro', class: 'tag-red' };
+            if (/res|cerdo|estofado|ternera/.test(txt)) return { text: 'Hierro', class: 'tag-red' };
             if (/sopa|crema/.test(txt)) return { text: 'Comfort', class: 'tag-purple' };
             return null;
         }
 
         function renderCalendar(schedule) {
             const calDiv = document.getElementById('calendar');
-            calDiv.innerHTML = `
-                <div class="day-header">Lunes</div>
-                <div class="day-header">Martes</div>
-                <div class="day-header">Miércoles</div>
-                <div class="day-header">Jueves</div>
-                <div class="day-header">Viernes</div>
-                <div class="day-header">Sábado</div>
-                <div class="day-header">Domingo</div>
-            `;
+            // Clear current days (keep headers)
+            const headers = Array.from(calDiv.children).slice(0, 7);
+            calDiv.innerHTML = '';
+            headers.forEach(h => calDiv.appendChild(h));
 
-            // Add empty cells for start of month
-            const firstDate = new Date(year, month, 1);
-            let firstDay = firstDate.getDay(); // 0 is Sun
-
-            // Convert to Mon=0, Sun=6
-            // Sun(0) -> 6
-            // Mon(1) -> 0
+            // Empty Cells
+            const firstDate = new Date(currentYear, currentMonth, 1);
+            let firstDay = firstDate.getDay();
             let emptyCells = firstDay === 0 ? 6 : firstDay - 1;
 
             for (let i = 0; i < emptyCells; i++) {
                 const div = document.createElement('div');
                 div.className = 'day-card';
-                div.style.background = '#f1f5f9';
+                div.style.background = 'transparent';
                 div.style.boxShadow = 'none';
+                div.style.border = 'none';
                 calDiv.appendChild(div);
             }
 
@@ -553,37 +622,35 @@
                 if (day.isGlovo) {
                     div.classList.add('glovo-card');
                     div.innerHTML += `
-                        <div style="font-size: 2rem;">🛵</div>
-                        <div style="font-weight: 700; margin-top:5px;">GLOVO</div>
-                        <div style="font-size: 0.8rem;">Ticket Libre</div>
+                        <div style="font-size: 2.5rem; margin-top:20px;">🛵</div>
+                        <div style="font-weight: 800; color: #b45309; margin-top:5px;">GLOVO</div>
                     `;
                 } else {
-                    if (day.meals.length >= 2) { // Sunday Lunch+Dinner
+                    if (day.meals.length >= 2) {
                         div.classList.add('sunday-card');
-
-                        div.innerHTML += `<div class="meal-type">Comida</div>`;
+                        div.innerHTML += `<div class="meal-type">Comida (Lunch)</div>`;
                         div.innerHTML += renderMealContent(day.meals[0]);
-
-                        div.innerHTML += `<div class="meal-type">Cena</div>`;
+                        div.innerHTML += `<div class="meal-type">Cena (Dinner)</div>`;
                         div.innerHTML += renderMealContent(day.meals[1]);
-                    } else if (day.meals.length === 1) { // Dinner Only
-                        div.innerHTML += `<div class="meal-type">Cena</div>`;
+                    } else if (day.meals.length === 1) {
+                        div.innerHTML += `<div class="meal-type">Cena (Dinner)</div>`;
                         div.innerHTML += renderMealContent(day.meals[0]);
                     }
                 }
-
                 calDiv.appendChild(div);
             });
         }
 
         function renderMealContent(meal) {
+            if (!meal) return '';
             let html = '';
             if (meal.type === 'special') {
                 html += `<div class="meal-content">🥣 <b>${meal.main.name}</b></div>`;
             } else {
                 html += `<div class="meal-content">
-                    <b>${meal.main.name}</b><br>
-                    <span style="color:#64748b; font-size:0.85rem">+ ${meal.carb.name} y ${meal.veg.name}</span>
+                    <b>${meal.main.name}</b>`;
+                if (meal.carb) html += `<span style="color:var(--text-muted);">+ ${meal.carb.name}</span>`;
+                html += `<span style="color:var(--text-muted);">+ ${meal.veg.name}</span>
                 </div>`;
             }
             if (meal.note) {
@@ -592,152 +659,88 @@
             return html;
         }
 
-        // ---------------------------------------------------------
-        // SHOPPING LIST GENERATOR
-        // ---------------------------------------------------------
-
-        // Portion Constants (Per person per meal)
+        // Portions & Shopping List (Simplified usage of previous logic)
         const PORTIONS = {
-            MEAT: 0.200,      // kg (Chicken, Pork, Beef)
-            FISH: 0.200,      // kg
-            RICE: 0.080,      // kg (Raw)
-            PASTA: 0.100,     // kg (Raw)
-            POTATO: 0.250,    // kg
-            VEG_HEAVY: 0.200, // kg (Carrots, Tomatoes, Onions)
-            VEG_LIGHT: 0.150, // kg (Spinach, Broccoli, Salad)
-            LEGUME: 0.100,    // kg (Dried) or 0.250 (Cooked/Jar)
-            EGG: 2,           // units
-            SOUP: 0.250       // liters/kg
+            MEAT: 0.200, FISH: 0.200, RICE: 0.080, PASTA: 0.100, POTATO: 0.250,
+            VEG: 0.200, EGG: 2, SOUP: 0.3
         };
-
-        const FAMILY_SIZE = 4; // Ariel, Mia, Rosa, David
+        const FAMILY_SIZE = 4;
 
         function generateShoppingList(schedule) {
             const listContainer = document.getElementById('shopping-lists');
             listContainer.innerHTML = '';
 
+            // Generate list for the currently displayed month
+            // We can group by Week 1, 2, 3, 4 of the month view
+
             const weeks = {};
-
             schedule.forEach(day => {
-                const date = new Date(year, month, day.day);
-                const weekNum = getWeekNumber(date);
+                // Determine week index relative to start of month grid
+                // Approx: (day + offset) / 7
+                let d = new Date(currentYear, currentMonth, day.day);
+                let w = getWeekNumber(d);
+                if (!weeks[w]) weeks[w] = { id: w, products: {} };
 
-                if (!weeks[weekNum]) {
-                    weeks[weekNum] = { id: weekNum, items: { mains: [], sides: [] } };
-                }
-
-                if (day.meals) {
-                    day.meals.forEach(m => {
-                        if (m.type === 'special') {
-                            weeks[weekNum].items.mains.push(m.main);
-                        } else {
-                            weeks[weekNum].items.mains.push(m.main);
-                            weeks[weekNum].items.sides.push(m.carb);
-                            weeks[weekNum].items.sides.push(m.veg);
-                        }
-                    });
-                }
+                day.meals.forEach(m => {
+                    if (!m) return;
+                    // Add Main
+                    addProduct(weeks[w].products, m.main);
+                    // Add Sides
+                    if (m.carb) addProduct(weeks[w].products, m.carb);
+                    if (m.veg) addProduct(weeks[w].products, m.veg);
+                });
             });
 
-            // Render Weeks
-            Object.keys(weeks).map(Number).sort((a, b) => a - b).forEach((weekKey, index) => {
-                const week = weeks[weekKey];
-                const weekDiv = document.createElement('div');
-                weekDiv.className = 'week-list';
+            Object.keys(weeks).map(Number).sort((a, b) => a - b).forEach((wk, i) => {
+                const div = document.createElement('div');
+                div.className = 'week-list';
+                div.innerHTML = `<h3>Semana ${i + 1}</h3>`;
+                const ul = document.createElement('ul');
+                ul.className = 'shopping-items';
 
-                // Consolidate Items
-                const consolidated = {};
-                const allItems = [...week.items.mains, ...week.items.sides];
-
-                allItems.forEach(item => {
-                    if (!item) return;
-                    if (!consolidated[item.name]) {
-                        consolidated[item.name] = { count: 0, category: item.category || '' };
-                    }
-                    consolidated[item.name].count++;
+                const products = weeks[wk].products;
+                Object.keys(products).sort().forEach(pName => {
+                    const item = products[pName];
+                    const qty = calculateQty(pName, item);
+                    ul.innerHTML += `<li><span>${pName}</span><span>${qty}</span></li>`;
                 });
 
-                let html = `<h3>Semana ${index + 1}</h3><ul class="shopping-items">`;
-
-                Object.keys(consolidated).sort().forEach(name => {
-                    const data = consolidated[name];
-                    const count = data.count;
-                    const lowerCat = (name + " " + data.category).toLowerCase();
-
-                    let totalQty = 0;
-                    let unit = "";
-
-                    // Calculate Total Quantity = Count * Portion * FamilySize
-                    // Adjust based on category regex
-
-                    if (/pollo|pavo|ave/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.MEAT * FAMILY_SIZE;
-                        unit = "kg";
-                    } else if (/res|cerdo|carne/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.MEAT * FAMILY_SIZE;
-                        unit = "kg";
-                    } else if (/pescado|atún|marisco/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.FISH * FAMILY_SIZE;
-                        unit = "kg";
-                    } else if (/arroz|cereal/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.RICE * FAMILY_SIZE;
-                        unit = "kg";
-                    } else if (/pasta/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.PASTA * FAMILY_SIZE;
-                        unit = "kg";
-                    } else if (/patata|papa/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.POTATO * FAMILY_SIZE;
-                        unit = "kg";
-                    } else if (/huevo/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.EGG * FAMILY_SIZE;
-                        unit = "u.";
-                    } else if (/lenteja|frijol|legumbre/.test(lowerCat)) {
-                        // Assuming dried for shopping list often, or jars. Let's assume jars/fresh cooked weight equivalent
-                        totalQty = count * PORTIONS.LEGUME * FAMILY_SIZE;
-                        unit = "kg (seco)";
-                    } else if (/sopa|crema/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.SOUP * FAMILY_SIZE;
-                        unit = "L/kg";
-                    } else if (/zanahoria|cebolla|tomate|pepino/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.VEG_HEAVY * FAMILY_SIZE;
-                        unit = "kg";
-                    } else if (/brócoli|espinaca|vegetal|verdura|ensalada/.test(lowerCat)) {
-                        totalQty = count * PORTIONS.VEG_LIGHT * FAMILY_SIZE;
-                        unit = "kg";
-                    } else {
-                        // Default fallback
-                        totalQty = count;
-                        unit = "pack/u";
-                    }
-
-                    // Format number nicely
-                    let qtyStr = "";
-                    if (unit === "u." || unit === "pack/u") {
-                        qtyStr = `${Math.ceil(totalQty)} ${unit}`;
-                    } else {
-                        // Round to 1 decimal place or convert to grams if small? Keep kg for standard list.
-                        qtyStr = `${totalQty.toFixed(2)} ${unit}`;
-                    }
-
-                    // Clean up .00
-                    qtyStr = qtyStr.replace('.00 ', ' ');
-
-                    html += `<li><span>${name}</span> <span>${qtyStr}</span></li>`;
-                });
-
-                html += '</ul>';
-                weekDiv.innerHTML = html;
-                listContainer.appendChild(weekDiv);
+                div.appendChild(ul);
+                listContainer.appendChild(div);
             });
         }
 
-        // Re-implement getWeekNumber to be robust
+        function addProduct(dict, item) {
+            if (!item) return;
+            if (!dict[item.name]) dict[item.name] = { count: 0, cat: item.category };
+            dict[item.name].count++;
+        }
+
+        function calculateQty(name, data) {
+            const low = (name + " " + data.cat).toLowerCase();
+            let p = 1.0; let unit = "pack";
+
+            if (/pollo|pavo|carne|res|cerdo|ternera/.test(low)) { p = PORTIONS.MEAT; unit = "kg"; }
+            else if (/pescado|atún|salmón/.test(low)) { p = PORTIONS.FISH; unit = "kg"; }
+            else if (/arroz|cereal/.test(low)) { p = PORTIONS.RICE; unit = "kg"; }
+            else if (/pasta|spaghetti|macarron/.test(low)) { p = PORTIONS.PASTA; unit = "kg"; }
+            else if (/patata|papa/.test(low)) { p = PORTIONS.POTATO; unit = "kg"; }
+            else if (/huevo/.test(low)) { p = PORTIONS.EGG; unit = "u."; }
+            else if (/sopa|crema/.test(low)) { p = PORTIONS.SOUP; unit = "L"; }
+            else if (/vegetal|verdura|ensalada|tomate/.test(low)) { p = PORTIONS.VEG; unit = "kg"; }
+
+            let val = data.count * p * FAMILY_SIZE;
+            if (unit === "u.") return `${Math.ceil(val)} u.`;
+            if (unit === "pack") return `${data.count} u.`;
+            return `${val.toFixed(2)} ${unit}`;
+        }
+
         function getWeekNumber(d) {
-            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            return weekNo;
+            const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            const dayNum = date.getUTCDay() || 7;
+            date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+            return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
         }
 
         window.onload = init;
