@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador Gastronómico Premium</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+        <div class="globe globe-3"></div>
+    </div>
+
+    <main class="app-container">
+        <header class="header">
+            <h1>GastroRate <span class="accent">AI</span></h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+                <span class="progress-text" id="progressText">1 / 40</span>
+            </div>
+        </header>
+
+        <section id="quiz-card" class="card glass-effect">
+            <div class="image-container" id="foodImageContainer">
+                <div class="food-emoji" id="foodEmoji"></div>
+                <div class="badge-category" id="foodCategory">Categoria</div>
+            </div>
+
+            <div class="content-container">
+                <h2 id="foodName" class="food-title">Cargando...</h2>
+                <div class="ingredients-toggle-container">
+                    <button id="viewIngredientsBtn" class="btn-text-small">🔍 Ver Ingredientes</button>
+                    <div id="ingredientsList" class="ingredients-list hidden">
+                        <!-- Ingredients injected here -->
+                    </div>
+                </div>
+
+                <div class="rating-section">
+                    <p class="question">¿Cuántas estrellas le das?</p>
+                    <div class="stars-container" id="starsContainer">
+                        <button class="star-btn" data-value="1">★</button>
+                        <button class="star-btn" data-value="2">★</button>
+                        <button class="star-btn" data-value="3">★</button>
+                        <button class="star-btn" data-value="4">★</button>
+                        <button class="star-btn" data-value="5">★</button>
+                    </div>
+                </div>
+
+                <div id="feedbackSection" class="feedback-section hidden">
+                    <label class="feedback-label">Selecciona los ingredientes que NO te gustan:</label>
+                    <div id="dislikeOptionsContainer" class="dislike-options-grid">
+                        <!-- Options will be injected here via JS -->
+                    </div>
+                    <textarea id="dislikeReason" placeholder="Otra razón..." rows="2"
+                        class="other-reason-text hidden"></textarea>
+                </div>
+
+                <div class="actions">
+                    <button id="nextBtn" class="btn-primary" disabled>Siguiente Platillo</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Results State (Hidden by default) -->
+        <section id="results-card" class="card glass-effect hidden">
+            <div class="results-content">
+                <h2>¡Evaluación Completada!</h2>
+                <p>Has calificado 40 platillos. Aquí están tus resultados.</p>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="avgRating">0.0</span>
+                        <span class="stat-label">Promedio</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="favoritesCount">0</span>
+                        <span class="stat-label">Favoritos (5★)</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="dislikesCount">0</span>
+                        <span class="stat-label">No Gustados (<3★)< /span>
+                    </div>
+                </div>
+                <div class="actions-vertical">
+                    <button id="whatsappBtn" class="btn-whatsapp">Enviar por WhatsApp 📱</button>
+                    <button id="downloadBtn" class="btn-secondary">Exportar JSON</button>
+                    <button id="restartBtn" class="btn-text">Volver a empezar</button>
+                </div>
+                <!-- JSON Preview Area -->
+                <pre id="jsonPreview" class="json-preview"></pre>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
