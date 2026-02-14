@@ -309,7 +309,7 @@ function showResults() {
 
     // WhatsApp Button
     whatsappBtn.onclick = () => {
-        const phoneNumber = "34620702766";
+        const phoneNumber = "34640702766";
         // Minify to save space
         const jsonMinified = JSON.stringify(answers);
         const message = `¡He completado la encuesta de comida! 🍽️\n\nResultados:\n${jsonMinified}`;
