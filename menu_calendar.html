@@ -39,6 +39,7 @@
             font-size: 3rem;
             margin-bottom: 3rem;
             background: linear-gradient(to right, var(--primary), var(--secondary));
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -384,8 +385,7 @@
 
             { name: "Pescado al Horno con Patatas", base: "Pescado", category: "Horno", type: "special", suitable: "dinner" },
             { name: "Pollo Asado con Patatas", base: "Pollo", category: "Horno", type: "special", suitable: "lunch" }, // Roast chicken is lunch usually in Spain
-            { name: "Sopa de Pollo", base: "Sopa", category: "Sopa", type: "special", suitable: "dinner" },
-            { name: "Crema de Calabacín", base: "Vegetal", category: "Cuchara", type: "special", suitable: "dinner" }
+            { name: "Sopa de Pollo", base: "Pollo", category: "Sopa", type: "special", suitable: "dinner" }
         ];
 
         // Seeded RNG
@@ -415,9 +415,9 @@
             let specials = [];
             // Add Extras if preferred
             EXTRA_RECIPES.forEach(r => {
-                // Check if family generally likes the base
-                const match = stats.find(s => s.name.includes(r.base) && s.avg_rating >= 3);
-                if (match || r.base === "Vegetal" || r.base === "Sopa") {
+                // Check if family generally likes the base. Strict check: No 1s allowed (min_rating >= 2)
+                const match = stats.find(s => s.name.includes(r.base) && s.min_rating >= 2);
+                if (match) {
                     specials.push(r);
                 }
             });

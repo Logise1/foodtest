@@ -143,6 +143,8 @@ def generate_month_schedule(food_stats):
     
     # Let's see if we have them in stats, otherwise add mock entries suitable for the month
     specials = [f for f in food_stats if any(x in f['name'].lower() for x in ['lentejas', 'sopa', 'crema', 'estofado', 'guiso'])]
+    # Explicitly exclude Crema de Calabacín
+    specials = [f for f in specials if "crema de calabacín" not in f['name'].lower()]
     
     # If the user JSON doesn't have these, we might want to inject a few generic "High Rated" placeholders
     # ONLY if we assume they exist. The user asked for "Rarely (lentils, soup...)"
